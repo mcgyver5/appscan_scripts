@@ -8,10 +8,13 @@ import mimetypes
 
 
 def writeLine(destfile,outformat, issue,url,param):
+    sep = ","
     if outformat == 'csv':
-        destfile.write(issue + "|" + url + "|" + param)
-        print(issue.strip() + "|" + url.strip() + "|" + param)
+        csvString = issue.strip() + sep + url.strip() + sep + param + "\n"
+        destfile.write(csvString)
+        print(csvString)
     else:
+
         destfile.write("URL: " + url)
         destfile.write("Parameter: " + param)
 
