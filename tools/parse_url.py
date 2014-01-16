@@ -7,16 +7,6 @@ import mimetypes
 
 
 
-def flawed():
-    try:
-        x = 12
-        raise ValueError("sucks to be here")
-    except ValueError:
-        print("yeah I know it is error")
-
-def about():
-    return "parse_url"
-
 def writeLine(destfile,outformat, issue,url,param):
     if outformat == 'csv':
         destfile.write(issue + "|" + url + "|" + param)
@@ -62,7 +52,7 @@ def parse_urls(existfile, destfile,outformat):
                     url = flist[idx+1]
 
                 if line.find('Entity:') > -1:
-                    
+
                     entity = flist[idx+1]
                     finishedLine = True
                     entityParts = entity.split()
