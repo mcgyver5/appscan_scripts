@@ -6,6 +6,8 @@ scripts that help with IBM Rational Appscan
 this is a bunch of scripts I use with appscan:
 
 1) extract_url.py == sometimes I run a report and I want to extract URLs and parameters to a text file
+  1) save report from appscan as text file (make sure you check application data and application URLs
+  2) run extract_url.py -f yourSavedFile.txt -d yourNewFile.txt [-o csv|txt]  (defaults to csv)
 
 2) import_url.py == sometimes I want to digest a war file and import the urls this script finds into appscan
 
