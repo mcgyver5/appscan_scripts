@@ -35,15 +35,23 @@ def parse_urls(existfile, destfile,outformat):
             countFileLines = 0
             url = ""
             entity = ""
+            backup = 1
+            springForward = 1
             for idx, line in enumerate(flist):
                # print(8)
                 countFileLines = countFileLines + 1
 
                 if line.find('TOC') > -1:
                     #print(9)
+
                     nextLine = flist[idx + 1]
+                    #correct for differences in format:
+                    if nextLine.strip() == "":
+                        nextLine = flist[idx+3]
+                        backup = 2
+                        springForward = 2
                     if nextLine.find('Issue') > -1:
-                        issue = flist[idx -1]
+                        issue = flist[idx - backup]
                         # break issue:
                         rinx = issue.rfind(" ")
                         issue = issue[0:rinx]
@@ -52,11 +60,11 @@ def parse_urls(existfile, destfile,outformat):
 
                 if line.find('URL:') > -1:
 
-                    url = flist[idx+1]
+                    url = flist[idx+springForward]
 
                 if line.find('Entity:') > -1:
 
-                    entity = flist[idx+1]
+                    entity = flist[idx+springForward]
                     finishedLine = True
                     entityParts = entity.split()
                     entity = entityParts[0]
