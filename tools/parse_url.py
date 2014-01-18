@@ -5,6 +5,25 @@ import sys
 import argparse
 import mimetypes
 
+def allowed_issue(issue):
+    print(str(issue))
+    issue = int(issue)
+    if issue in [0,1,2,3,4,5]:
+        print("is in  0 - 5")
+        if issue == 1:
+            return "Cross-Site Scripting"
+        elif issue == 2:
+            return "SQL"
+        elif issue == 3:
+            return "Privilege"
+        elif issue == 4:
+            return "Forgery"
+        elif issue == 5:
+            return "Traversal"
+        return "All"
+    else:
+        msg = "issue must be 0 - 5"
+        raise argparse.ArgumentTypeError(msg)
 
 
 def writeLine(destfile,outformat, issue,url,param):
@@ -18,10 +37,8 @@ def writeLine(destfile,outformat, issue,url,param):
         destfile.write("URL: " + url)
         destfile.write("Parameter: " + param)
 
-def parse_urls(existfile, destfile,outformat):
-    # if it says TOC and then issue, get the issue behind it (idx -1)
-    # if it says TOC and then something else, ignore the something else.
-    print("trying " + existfile)
+def parse_urls(existfile, destfile,outformat,issueString):
+
     try:
         with open(existfile):
             issue = ""
@@ -30,8 +47,6 @@ def parse_urls(existfile, destfile,outformat):
             flist = f.readlines()
             f.close()
             dest = open(destfile,'w')
-
-            countUrl = 0
             countFileLines = 0
             url = ""
             entity = ""
@@ -52,6 +67,7 @@ def parse_urls(existfile, destfile,outformat):
                         springForward = 2
                     if nextLine.find('Issue') > -1:
                         issue = flist[idx - backup]
+
                         # break issue:
                         rinx = issue.rfind(" ")
                         issue = issue[0:rinx]
@@ -70,7 +86,9 @@ def parse_urls(existfile, destfile,outformat):
                     spare = entityParts[1]
 
                 if finishedLine:
-                    writeLine(dest,outformat,issue,url,entity)
+                    #print(issue + " " + issueString)
+                    if issueString == 'All' or issue.find(issueString) > -1:
+                        writeLine(dest,outformat,issue,url,entity)
                     finishedLine = False
 
     except IOError as e:
@@ -82,13 +100,13 @@ def parse_urls(existfile, destfile,outformat):
 
 
 if __name__ == "__main__":
-    # this part only works if called from command line:
+    # this part gets called if called from command line:
     print("appscan sucks!!!")
     parser = argparse.ArgumentParser(description="hash incoming text")
     parser.add_argument('--file','-f', required=True,help='file name to process')
     parser.add_argument('--dest','-d',default='dest.csv',help='output file name')
     parser.add_argument('--outformat','-o', default='csv',help='output format can be csv or txt default is csv')
-    parser.add_argument('--issue','-i',default='all', help='limit output to certain issue type')
+    parser.add_argument('--issue','-i', default='0', type=allowed_issue, help='limit output 1 = cross site scripting, 2 = sqli 3 = Privilege Escalation 4 = CSRF 5 = dir traverse')
     args = parser.parse_args()
 
-    parse_urls(args.file,args.dest,args.outformat)
+    parse_urls(args.file,args.dest,args.outformat,args.issue)
