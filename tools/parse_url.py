@@ -59,7 +59,6 @@ def parse_urls(existfile, destfile,outformat):
 
 
                 if line.find('URL:') > -1:
-
                     url = flist[idx+springForward]
 
                 if line.find('Entity:') > -1:
@@ -86,9 +85,10 @@ if __name__ == "__main__":
     # this part only works if called from command line:
     print("appscan sucks!!!")
     parser = argparse.ArgumentParser(description="hash incoming text")
-    parser.add_argument('--file','-f', required=True)
-    parser.add_argument('--dest','-d',default='dest.csv')
-    parser.add_argument('--outformat','-o', default='csv')
+    parser.add_argument('--file','-f', required=True,help='file name to process')
+    parser.add_argument('--dest','-d',default='dest.csv',help='output file name')
+    parser.add_argument('--outformat','-o', default='csv',help='output format can be csv or txt default is csv')
+    parser.add_argument('--issue','-i',default='all', help='limit output to certain issue type')
     args = parser.parse_args()
 
     parse_urls(args.file,args.dest,args.outformat)
