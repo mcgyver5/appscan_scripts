@@ -4,6 +4,10 @@ import xml.etree.ElementTree as ET
 import sys
 import argparse
 import mimetypes
+import re
+import Tkinter, tkFileDialog
+
+
 
 def allowed_issue(issue):
     print(str(issue))
@@ -37,8 +41,49 @@ def writeLine(destfile,outformat, issue,url,param):
         destfile.write("URL: " + url)
         destfile.write("Parameter: " + param)
 
-def parse_urls(existfile, destfile,outformat,issueString):
+def parse_issue(lines):
+    pass
 
+def parse_document(existfile, destfile, outformat, issueString):
+    #signature:  TEXT ##  followed by blank line followed by TOC = new issue
+    #  ISSUE ## of ## followed by TOC = one issue
+
+
+    try:
+        with open(existfile):
+            issue = ""
+            f = open(existfile)
+            finishedLine = False
+            flist = f.readlines()
+            f.close()
+            dest = open(destfile,'w')
+            countFileLines = 0
+            url = ""
+            entity = ""
+            backup = 1
+            springForward = 1
+
+            for idx, line in enumerate(flist):
+                #print("i")
+                # match TEXT, three spaces, two digits  followed by blank line followed by TOC
+                # match TEXT, three spaces, one or two digits
+                patternString = r"[\S]+[ ]+[0-9]?$"
+                pattern = re.compile(patternString)
+
+                if pattern.match(line):
+                    lineNext = flist[idx+2]
+                    if lineNext.find("TOC") > -1:
+                        print(line)
+
+    except IOError as e:
+        print e
+    except TypeError as te:
+        print te
+    except:
+        print("Unexpected error:", sys.exc_info()[0])
+
+def parse_urls(existfile, destfile,outformat,issueString):
+    variants = False
     try:
         with open(existfile):
             issue = ""
@@ -84,6 +129,8 @@ def parse_urls(existfile, destfile,outformat,issueString):
                     entityParts = entity.split()
                     entity = entityParts[0]
                     spare = entityParts[1]
+                if variants:
+                    print("hello variants")
 
                 if finishedLine:
                     #print(issue + " " + issueString)
@@ -101,12 +148,17 @@ def parse_urls(existfile, destfile,outformat,issueString):
 
 if __name__ == "__main__":
     # this part gets called if called from command line:
-    print("appscan sucks!!!")
     parser = argparse.ArgumentParser(description="hash incoming text")
-    parser.add_argument('--file','-f', required=True,help='file name to process')
+    parser.add_argument('--file','-f', required=False,help='file name to process')
     parser.add_argument('--dest','-d',default='dest.csv',help='output file name')
     parser.add_argument('--outformat','-o', default='csv',help='output format can be csv or txt default is csv')
     parser.add_argument('--issue','-i', default='0', type=allowed_issue, help='limit output 1 = cross site scripting, 2 = sqli 3 = Privilege Escalation 4 = CSRF 5 = dir traverse')
     args = parser.parse_args()
+    # if --file parameter not present, use tkfiledialog to ask for one:
+    if args.file == None:
+        file = tkFileDialog.askopenfilename(title="SFD")
+    else:
+        file = args.file
 
-    parse_urls(args.file,args.dest,args.outformat,args.issue)
+    #parse_document(args.file,args.dest,args.outformat,args.issue)
+    parse_urls(file,args.dest,args.outformat,args.issue)
